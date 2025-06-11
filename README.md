@@ -14,7 +14,7 @@
   Clean, readable UI with a dark theme and subtle color accents. Includes a well-themed background image for atmosphere.
 
 - **In-Browser Play**  
-  No installation needed — play directly in your web browser.
+  No installation needed(This will be true on itch.io) — play directly in your web browser.
 
 - **Dynamic Dialogue**  
   Character responses change based on the player's decisions.
