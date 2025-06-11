@@ -43,8 +43,6 @@
 
 Suggestions, feedback, and contributions are welcome. Feel free to open an issue or submit a pull request.
 
----
-
 ## Notes
 
 - Built with: HTML, CSS, JavaScript  
