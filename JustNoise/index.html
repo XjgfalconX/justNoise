@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Just Noise</title>
+<style>
+  body {
+    margin: 0; padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: black;
+    background-image: url('justNoise.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    color: white;
+    overflow: hidden;
+  }
+  .background-overlay {
+    position: fixed; top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background-color: rgba(0,0,0,0.5);
+    z-index: -1;
+  }
+  #title-screen {
+    position: fixed; top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background-color: black;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 200;
+    cursor: pointer;
+  }
+  #title-screen h1 {
+    font-size: 6em;
+    font-weight: bold;
+    margin: 0;
+    background-image: linear-gradient(to right, white, #a4cbd9);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    user-select: none;
+  }
+  #title-screen p {
+    font-size: 1em;
+    margin-top: 10px;
+    color: white;
+    user-select: none;
+    opacity: 0.7;
+    font-weight: 300;
+  }
+  #name-screen {
+    display: none;
+    position: fixed; top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    justify-content: center;
+    align-items: center;
+    z-index: 300;
+    color: white;
+    flex-direction: column;
+    text-align: center;
+  }
+  #name-screen h2 {
+    margin-bottom: 20px;
+    font-size: 2em;
+  }
+  #player-name-input {
+    padding: 10px;
+    font-size: 1.2em;
+    margin-bottom: 20px;
+    width: 80%;
+    max-width: 400px;
+    border: 2px solid #a4cbd9;
+    background-color: transparent;
+    color: white;
+  }
+  #name-submit-btn {
+    padding: 10px 20px;
+    font-size: 1.2em;
+    border: none;
+    background-color: #a4cbd9;
+    color: black;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  #name-submit-btn:hover {
+    background-color: #90b3c7;
+  }
+  .content-wrapper {
+    padding: 20px 40px 120px;
+    max-width: 1000px;
+    margin: 0 auto;
+    height: 100vh;
+    overflow-y: auto;
+    box-sizing: border-box;
+    display: none;
+  }
+  .text-area {
+    width: 100%;
+    font-size: 1.1em;
+    line-height: 1.7;
+    margin-bottom: 40px;
+  }
+  .choices {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .choice-button {
+    background-color: transparent;
+    color: #a4cbd9;
+    border: 2px solid transparent;
+    padding: 12px 20px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .choice-button:hover {
+    color: white;
+    transform: scale(1.05);
+  }
+  .nav-bar {
+    position: fixed;
+    bottom: -70px; /* hidden initially */
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 15px 0;
+    z-index: 100;
+    transition: bottom 0.3s ease;
+  }
+  .nav-bar.visible {
+    bottom: 0;
+  }
+  .nav-button {
+    background-color: transparent;
+    color: white;
+    border: 2px solid white;
+    padding: 10px 20px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .nav-button:hover {
+    transform: scale(1.1);
+  }
+  #history-view {
+    display: none;
+    padding: 20px 40px 120px;
+    max-width: 1000px;
+    margin: 0 auto;
+    height: 100vh;
+    overflow-y: auto;
+    box-sizing: border-box;
+    background-color: rgba(0,0,0,0.85);
+    color: #a4cbd9;
+    user-select: text;
+  }
+  #saves-view {
+    display: none;
+    padding: 20px 40px 120px;
+    max-width: 1000px;
+    margin: 0 auto;
+    height: 100vh;
+    overflow-y: auto;
+    box-sizing: border-box;
+    background-color: rgba(0, 0, 0, 0.85);
+    color: #a4cbd9;
+    user-select: text;
+  }
+  #history-view h2 {
+    color: white;
+    margin-bottom: 20px;
+  }
+  #history-content p {
+    margin: 10px 0;
+    white-space: pre-wrap;
+  }
+  #history-exit-button {
+    margin-top: 30px;
+    background-color: transparent;
+    border: 2px solid #a4cbd9;
+    color: #a4cbd9;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: all 0.2s ease;
+  }
+  #history-exit-button:hover {
+    background-color: #a4cbd9;
+    color: black;
+  }
+</style>
+</head>
+<body>
+<div id="title-screen" onclick="startGame()">
+  <h1>Just Noise</h1>
+  <p>by xjgfalconx</p>
+  <p>(still a work in progress)</p>
+</div>
+
+<div class="background-overlay"></div>
+
+<div class="content-wrapper" id="game-content">
+  <div class="text-area" id="text-area"></div>
+  <div class="choices" id="choices"></div>
+</div>
+
+<div id="history-view">
+  <h2>History</h2>
+  <div id="history-content"></div>
+  <button id="history-exit-button">Exit History</button>
+</div>
+
+<div class="nav-bar" id="nav-bar">
+  <button class="nav-button" id="history-btn">History</button>
+  <button class="nav-button" id="back-btn">Back</button>
+  <button class="nav-button" onclick="location.reload()">Restart</button>
+</div>
+
+<div id="name-screen">
+  <h2>Enter Your Name</h2>
+  <input type="text" id="player-name-input" placeholder="Your name... (Joey by default)" />
+  <button id="name-submit-btn">Submit</button>
+</div>
+
+<script>
+  let abbyLove = 0;
+  let lenaLove = 0;
+  let playerMessageChoice = null;
+  let playerMusicChoice = null;
+  let playerName = "Joey"; // Default fallback
+
+  // Scene definitions
+  const scenes = [
+    {
+      id: 0,
+      text: [
+        "You wake to the crushing weight of another Monday. Just getting out of bed feels like a war.",
+        "Her words are still sitting on your mind like bricks",
+        "You knew she was right, but you dont know what to do",
+        "So you just go through your morning routine",
+        "Your mother's cold stare as she leaves doesn’t sting anymore. You're used to it.",
+        "Then, your phone buzzes. A message lights up the screen.",
+        "You don’t open it. Not yet.",
+        "You’re not ready to risk messing things up with someone who might still care.",
+        "So, like always, you turn to your escape: games.",
+        "Silent rounds. Only talking to ask for help. Then a message pops up...",
+        "Abs202: 'Hiii :)'",
+        "Abs202: Can I add you on InstaChat? im tryna make new friends",
+        "You hesitate, but what could it hurt?",
+        "Your phone buzzes assuming its your new friend you open the app",
+        "Abby: 'You're actually really cute, you know.'"
+      ],
+      options: [
+        { text: "Wait... what?", next: 1 },
+        { text: "Uhh... thanks?", next: 2 },
+        { text: "Where'd that come from?", next: 3 }
+      ]
+    },
+    {
+      id: 1,
+      text: [
+        () => `${playerName}: 'Wait... what?'`,
+        "Abby: 'Just take the compliment lol.'",
+        () => `${playerName}: 'Uhm... thanks, I guess.'`,
+        "Abby: 'So... what kind of music are you into?'"
+      ],
+      options: [
+        { text: "Indie music", next: "music_choice" },
+        { text: "Mostly sad stuff", next: "music_choice" },
+        { text: "I don’t really listen to music", next: "music_choice" }
+      ]
+    },
+    {
+      id: 2,
+      text: [
+        () => `${playerName}: 'Uhh... thanks?'`,
+        "Abby: of course!",
+        "Abby: 'So... what kind of music are you into?'"
+      ],
+      options: [
+        { text: "Indie music", next: "music_choice" },
+        { text: "Mostly sad stuff", next: "music_choice" },
+        { text: "I don’t really listen to music", next: "music_choice" }
+      ]
+    },
+    {
+      id: 3,
+      text: [
+        () => `${playerName}: 'Where'd that come from?'`,
+        "Abby: 'I’m saying you’re cute, dummy!'",
+        () => `${playerName}: 'Oh... uh, thanks.'`,
+        "Abby: 'So... what kind of music are you into?'"
+      ],
+      options: [
+        { text: "Indie music", next: "music_choice" },
+        { text: "Mostly sad stuff", next: "music_choice" },
+        { text: "I don’t really listen to music", next: "music_choice" }
+      ],
+    },
+    {
+      id: "chapterThree",
+      text: [
+        "Your alarm clock blares, you dont care",
+        "Ring Ring Ring",
+        "SLAM",
+        "Your mom shuts it off, startling you. She gives you a look like",
+        "You ruined her entire day and walks out of the room in a huff",
+        "Crawling out of bed, your back hurts like sleep did more harm than good",
+        "You brush your teeth in silence, the only thing you can hear is sound of bristles",
+        "Scraping against your teeth, and the hiss of water from the faucet",
+        "Plopping yourself back onto your bed like its going to swallow you whole",
+        "Then..."
+      ],
+      options: [
+        { text: "Feeling your heart beat just a little faster you text abby", next: "abbyChoice1" },
+        { text: "Out of pure boredom you text abby", next: "abbyChoice1" }
+      ]
+    },
+    {
+      id: "chapterTwo",
+      text: [
+        "Chapter 2 - Nothing",
+        "You woke up later than usual. The light outside was already too bright, like it was mocking you.",
+        "Your room looked the same, the shadows in their corners, half-closed blinds, clothes on the floor like they’d been given up on.",
+        "The red standby light on your console blinked, slow, and steady, like a bored heartbeat.",
+        "The grey in your chest hadn’t lifted.",
+        "It never really did.",
+        "No sign of your mom. No text either.",
+        "Your phone’s battery was almost dead, but it didn’t matter. Nothing was waiting for you there.",
+        "You thought about Abby. Just for a second. Then let the thought drift away.",
+        "It was too early to care. Or too late.",
+        "You pull the blanket over your head. Not to sleep. Just to disappear.",
+        "Eventually, hunger wins. You get up. The floor is cold.",
+        "In the kitchen, you pour cereal, then let it sit until it’s soggy.",
+        "The silence is loud again.",
+        "You checked your phone again, another text from your friend that you ignore.",
+        "And then almost without meaning to, you tapped open Abby's chat.",
+        "Her last message still sitting there.",
+        "You werent smiling, you swear you arent feeling anything.",
+        "You cant let yourself feel anything.",
+        "But you typed anyways.",
+      ],
+      options: [
+        { text: "Good morning", next: "morningChoice" },
+        { text: "Hiiiii", next: "morningChoice" },
+        { text: "Are you awake?", next: "morningChoice" }
+      ]
+    },
+    {
+      id: "chapterFour",
+      text: [
+        "Nothings changed",
+        "You get out of bed and see your mom getting ready for work, holding some random documents",
+        "She doesnt even look at you this time",
+        "The air feels heavier than normal, you can smell the scent of old laundry and dust",
+        "Sitting in your desk chair you just stare at the ceiling, still and indifferent",
+        "In the bathroom you stare at your reflection",
+        "Despite wanting to be better your eyes are still dark and worried",
+        "After brushing your teeth you slump back onto your bed turning your phone on",
+        "No new messages",
+        "Your thumb hovers over abbys name",
+        "Its still early maybe you should wait a little longer"
+      ],
+      options: [
+        { text: "Wait", next: "abbyChoice2" },
+        { text: "Dont wait", next: "abbyChoice2" }
+      ]
+    },
+    {
+      id: "chapterFive",
+      text: [
+        "You message lena: 'I know it didint work out last time, but can we get back together?'",
+        "Lena: 'I dont know, ill think about it'",
+        "Its annoying but you know she needs time",
+        "After a long boring day, no messages from anyone, you lay down in bed",
+        "A little while later you phone buzzes",
+        "Lena: 'Help'",
+        "You rush out of bed in a panic, grab your pocket knife and run out the door",
+        "You run down the street, your heart pounding in your chest, you nearly trip over a crack in the sidewalk",
+        "You call the cops, hoping that they will get there before you do",
+        "Finally you reach her house, luckily the cops are already there",
+        "rushing past the cops you see her sobbing in the middle of the hallway",
+        "You go up to her crowching down confused and worried",
+        "When she sees you she swats your hand away",
+        "Lena: 'Get away from me!'",
+        "Lena: 'You did this!'",
+        "Confused you try to ask her what she means",
+        "And you see a cop holding her dad in handcuffs and lenas mom laying on the floor",
+        () => `${playerName}: 'What but i-'`,
+        "Lena: 'Why did you call the cops? You could have just stopped him!'",
+        "Your heart is aching, you try to talk but nothing comes out",
+        "Seeing her cry is tearing you apart",
+        "Everything becomes distorted, you cant hear the sirens or her dad shouting at the cops",
+        "all you can hear, all you can see is Lena with her face in her hands",
+        "Suddenly she looks up at you with those eyes",
+        "Lena: 'Wait-'",
+        () => `${playerName}: 'No'`,
+        "Your voice cracks, you cant take it anymore",
+        () => `${playerName}: 'Im s-sorry'`,
+        "You burst out of the house",
+        "One of the cops tries to stop you but you push past him",
+        "You got home slammed the door, soon curling up and learning back against it",
+        "Your hands clasped the back of your neck as tears started to flow",
+        () => `${playerName}: 'Im sorry'`,
+        () => `${playerName}: 'Im so sor-'`,
+        "You cant breathe",
+        "Your neck is frozen, with your breathes hitching in a way that pulls your chest in on itself",
+        "It burns so much, it's all your fault",
+    ],
+    options: [{ text: "Wake up", next: "wake"}]
+    },
+    {
+      id: "wake",
+      text: [
+        "You wake up in a cold sweat, your heart pounding in your chest",
+        "You look around your room, everything is the same as it was before",
+        "You get out of bed and go to the bathroom, looking at yourself in the mirror",
+        "Your still having that nightmare",
+        "You splash some water on your face and take a deep breath",
+        "You need to get out of here, you need to do something",
+        "You go back to your room and sit down at your desk",
+        "You open your phone and see a message from Abby",
+        "Abby: 'Gmm! thought i would tell you first so you cant ignore me like last time >:D'",
+      ],
+      options: [
+        { text: "Reply", next: "abbyReply1" },
+        { text: "Ignore", next: "abbyReply1" }
+      ]
+              
+    },
+    {
+      id: "ChapterSix",
+      text: [
+
+      ]
+    }
+  ];
+
+  // Scene lookup map for efficiency
+  const sceneMap = {};
+  scenes.forEach(s => { if (s.id !== undefined) sceneMap[s.id] = s; });
+
+  // History stack: elements: {sceneId, chosenOptionText}
+  let historyStack = [{ sceneId: 0, chosenOptionText: null }];
+  let currentHistoryIndex = 0;
+
+  // --- Scene Functions ---
+
+
+
+  function getMorningTextResponseScene(choice) {
+    playerMessageChoice = choice;
+    let morningResponseText;
+    switch(choice) {
+      case "Good morning":
+        morningResponseText = [
+          () => `${playerName}: 'Good morning'`,
+          "Sent. Delivered.",
+          "You locked the screen and tossed the phone accross your bed",
+          "It meant nothing, You were just bored",
+          "Just filling space",
+          "It was nothing",
+          "You waited a few minutes. No reply Maybe she was asleep Maybe she was busy",
+          "You told yourself it didint matter",
+          "But you kept checking the screen anyway",
+          "Buzz",
+          "Her name lit up",
+          "And you told yourself you felt nothing",
+          "Abby: 'Gmm :)'",
+        ];
+        break;
+      case "Hiiiii":
+        morningResponseText = [
+          () => `${playerName}: 'Hiiiii'`,
+          "Sent. Delivered.",
+          "You locked the screen and tossed the phone accross your bed",
+          "It meant nothing, You were just bored",
+          "Just filling space",
+          "It was nothing",
+          "You waited a few minutes. No reply Maybe she was asleep Maybe she was busy",
+          "You told yourself it didint matter",
+          "But you kept checking the screen anyway",
+          "Buzz",
+          "Her name lit up",
+          "And you told yourself you felt nothing",
+          "Abby: 'Haii :)'",
+        ];
+        break;
+      case "Are you awake?":
+        morningResponseText = [
+          () => `${playerName}: 'Are you awake?'`,
+          "Sent. Delivered.",
+          "You locked the screen and tossed the phone accross your bed",
+          "It meant nothing, You were just bored",
+          "Just filling space",
+          "It was nothing",
+          "You waited a few minutes. No reply Maybe she was asleep Maybe she was busy",
+          "You told yourself it didint matter",
+          "But you kept checking the screen anyway",
+          "Buzz",
+          "Her name lit up",
+          "And you told yourself you felt nothing",
+          "Abby: 'yeah whats up? :)'",
+        ];
+        break;
+      default:
+        morningResponseText = ["..."];
+    }
+
+    return {
+      id: "morningChoice",
+      text: [
+        ...morningResponseText,
+        () => `${playerName}: 'Random question what do you do for fun?'`,
+        "Abby: 'Well gamez ofc hmm but other than that probably art, like drawing flowers or something'",
+        () => `${playerName}: 'Ohh that's cool you should draw me'`,
+        "Abby: 'Whaat I'm not that good :p'",
+        () => `${playerName}: 'Oh come on I'm sure you're great lol'`,
+        "Theres a pause",
+        "You tell yourself you wont get attached, so this is ok",
+        () => `${playerName}: 'Recently ive been struggling with my chemistry class, it's so damn hard'`,
+        "You put your phone down",
+        "It's still early but your already tired",
+        "You think maybe you could ask abby to play the game she mentioned",
+        "You dont even like those kinds of games...",
+        "But she does",
+        "You open the app. See your chat log. And you say that you feel nothing",
+        "You decide not to message her again, just for now",
+        "Your minds just elsewhere",
+        "The day drags on",
+        "Everything feels boring. Your usual games don't feel fun right now",
+        "But then.. another text",
+        "You know you need to stop it here",
+        "Abby: 'Are you doing your chem stuff yet?'",
+        () => `${playerName}: 'No but i probably should lol'`,
+        "Abby: 'Do you wanna call?'",
+        () => `${playerName}: 'Oh uh'`,
+        "...",
+        () => `${playerName}: 'Yeah sure'`,
+        "You hate school. You hate homework. You hate most people.",
+        "So why did you say yes?",
+        "This is nothing",
+        "You feel nothing",
+        "And if you did it would only remind you of that guilt",
+        "And then the burn would come back",
+        "You could hear her saying something, you just nodded along",
+        "You couldnt really hear her",
+        "You had to ignore her",
+        "It's nothing"
+      ],
+      options: [{ text: "continue", next: "chapterThree" }]
+    };
+  }
+
+  function getCallChoice(choice) {
+    let callResponseText;
+    switch(choice) {
+      case "Agree":
+        abbyLove++;
+        callResponseText = [
+          () => `${playerName}: 'Yea sure'`,
+          "",
+          "The conversation felt... light",
+          "For once actually getting to know somebody felt better than keeping them distant",
+          "She talked about how her day was",
+          "How her dinner tasted funny yesterday",
+          "How she got a new dog with her parents earlier today",
+          () => `${playerName}: "It's really fun to talk to you"`,
+        ];
+        break;
+      case "Disagree":
+        callResponseText = [
+          () => `${playerName}: 'Nah sorry, im kinda busy right now'`,
+          () => `${playerName}: 'Maybe at some other point tho'`,
+          "Abby: 'Is it the chemistry stuff?'",
+          () => `${playerName}: 'yea lol even though its still spring break i gotta study`,
+          () => `${playerName}: 'Its because we have a test as soon as we get back, i hate that teacher`,
+          "Abby: 'haha'",
+          () => `${playerName}: 'hey dont laugh at me >:(`
+        ];
+        break;
+      default:
+        callResponseText = ["..."];
+    }
+    return {
+      id: "callChoice",
+      text: [
+        ...callResponseText,
+        "Abby: 'hehe :3'",
+        "You freeze up, not because its weird, but because its too familiar",
+        "You told yourself you would get over her but your overwhelming guilt wont let you forget",
+        "Giving yourself a little time to think, you know you cant keep doing this",
+        "If you stay scared of lena, nothing will ever change",
+        "You dont have to try and force the healing process, but you cant stay the same forever",
+      ],
+      options: [{ text: "Continue", next: "chapterFour" }]
+    };
+  }
+
+  function getAbbyResponseOne(choice) {
+    let playerMessageText;
+    switch(choice) {
+      case "Feeling your heart beat just a little faster you text abby":
+        abbyLove++;
+        playerMessageText = [
+          () => `${playerName}: 'Hey good morning abby :)'`,
+          "She doesn’t respond for a few minutes",
+          "You get a little scared but after giving yourself time to think you figure its the same as yesterday.",
+          "So you just convince yourself to wait"
+        ];
+        break;
+      case "Out of pure boredom you text abby":
+        playerMessageText = [
+          () => `${playerName}: 'Hey gm'`,
+          "She doesn't respond for a few minutes",
+          "So you just wait"
+        ];
+        break;
+      default:
+        playerMessageText = ["..."];
+    }
+    return {
+      id: "abbyChoice1",
+      text: [
+        ...playerMessageText,
+        "Abby: 'Gmm wyd? =]'",
+        () => `${playerName}: 'Nothing, just being bored'`,
+        "Abby: 'Aww that sucks we should do something fun'",
+        () => `${playerName}: 'Like what?'`,
+        "Abby: 'idkk maybe we could just call or something'"
+      ],
+      options: [
+        { text: "Agree", next: "callChoice" },
+        { text: "Disagree", next: "callChoice" }
+      ]
+    };
+  }
+
+  function getMusicResponseScene(choice) {
+    let musicResponseText;
+    switch(choice) {
+      case "Indie music":
+        musicResponseText = [
+          () => `${playerName}: 'I guess I like indie music. It's got a cool vibe.'`,
+          () => `${playerName}: 'What about you? What are you up to?'`
+        ];
+        break;
+      case "Mostly sad stuff":
+        musicResponseText = [
+          () => `${playerName}: 'Mostly sad stuff. It fits how I feel sometimes.'`,
+          () => `${playerName}: 'What about you? What are you up to?'`
+        ];
+        break;
+      case "I don’t really listen to music":
+        musicResponseText = [
+          () => `${playerName}: 'I don’t really listen to music much.'`,
+          () => `${playerName}: 'What about you? What are you up to?'`
+        ];
+        break;
+      default:
+        musicResponseText = [
+          () => `${playerName}: 'I like music.'`,
+          () => `${playerName}: 'What about you? What are you up to?'`
+        ];
+    }
+    return {
+      id: "music_choice",
+      text: [
+        ...musicResponseText,
+        "Abby: 'Talking to you, obviously :)'",
+        () => `${playerName}: 'Haha, I mean besides that.'`,
+        "Abby: 'Playing a game. You play action games?'",
+        () => `${playerName}: 'Sometimes, not that often.'`,
+        "Abby: 'We should play sometime!'",
+        () => `${playerName}: 'Yeah, maybe. Anyway, I’ve got chem homework. I’ll talk to you later, okay?'`,
+        "Abby: 'Okay, bye-bye~'",
+        "She’s... different.",
+        "Charming. Easygoing. It disarms you before you even notice.",
+        "Your chest lifts for a second. Maybe... maybe it’s okay to feel again.",
+        "But then it hits you. Cold. Fast. Sharp.",
+        "Lena’s voice echoes like a ghost. Guilt follows.",
+        "You swallow, but the weight stays.",
+        "Steady hands. Shaky heart.",
+        "You tell yourself it's just a moment. Nothing more.",
+        "But Lena's voice lingers.",
+        "And everything suddenly feels a little too loud.",
+        "Then, silence.",
+        "You stare at the screen. Waiting.",
+        "And then... you get up.",
+        "You have to."
+      ],
+      options: [{ text: "Continue", next: "chapterTwo" }]
+    };
+  }
+
+  function getAbbyResponseTwo(choice) {
+    let playerMessageText;
+    lenaLove++;
+    switch(choice) {
+      case "Wait":
+        playerMessageText = [
+          "You decide it would be better to wait, you wouldnt want to bother her",
+          "But you feel a little lonely, its crazy that you can already miss her",
+          "You put your phone down and try to distract yourself before you do something stupid",
+          "After a while you get a message",
+          "Abby: 'No good morning </3'",
+          () => `${playerName}: 'Sorry I was just doing some stuff'`,
+          "You feel kind of bad for not responding right away",
+          "But its not that big of a deal",
+          "Abby: 'Im just kidding lol its oke'",
+        ];
+        break;
+      case "Dont wait":
+        abbyLove++;
+        playerMessageText = [() => `${playerName}: 'hey good morning abby'`,
+          "You send the message and wait",
+          "You know you shouldnt be doing this, but you do it anyway",
+          "You just want to feel something, anything",
+          "You wait a few minutes and then you get a response",
+          "Abby: 'Gmm :)'",
+          "You feel a little better, you know you shouldnt but you do",
+          "Maybe its okay to feel like this",
+        ];
+        break;
+      default:
+        playerMessageText = ["..."];
+    }
+    return {
+      id: "abbyChoice2",
+      text: [
+        ...playerMessageText,
+         "Abby: 'Hey i dont know how to say this so im just gonna come clean, but i kind of have a boyfriend'",
+          "Abby: 'But i dont really like him, honestly he can be such a pain",
+          "Abby: 'I just dont know how to break up with him'",
+          () => `${playerName}: 'Oh, well you should do what makes you happy'`,
+          "Abby: 'I know, but i dont want to hurt him'",
+          "You would be lying if you said that didint hurt",
+          "You need someone to talk to right now, but you dont know how to feel anymore about abby",
+          "But out of nowhere you get a message from lena",
+          () => `Lena: 'Hey ${playerName}',`,
+          "Lena: 'I know its weird right now, given that you've been igoring me",
+          "Lena: 'But i saw something today and it made me think of you'",
+          "Lena: 'Remember that stray cat we would feed next to the gas station when we were kids?'",
+          "Lena: 'I saw one just like it'",
+          "Lena: 'anyway'",
+          "Lena: 'Just thought id say hi, you dont have to reply'",
+          "Of course you dont have to reply",
+          "Thats her way of keeping it polite, letting me off the hook",
+          "Shes saying 'Stay gone', but still, she remembered the cat",
+          "That was so long ago... why now?",
+          "You decide to just ignore it for now and go to sleep",
+      ],
+      options: [
+        { text: "Continue", next: "chapterFive" }
+      ]
+    };
+  }
+
+  function getWakeScene(choice) {
+    let wakeResponseText;
+    switch(choice) {
+      case "Reply":
+        abbyLove++;
+        wakeResponseText = [
+          "You decide to reply to Abby",
+          () => `${playerName}: 'Hey, I just woke up'`,
+          "You feel a little better",
+          "Maybe its okay to feel like this"
+        ];
+        break;
+      case "Ignore":
+        abbyLove--;
+        lenaLove++;
+        wakeResponseText = [
+          "You decide not to reply to Abby",
+          "You still want to feel something, anything",
+          "You open Lena's chat",
+          "You try to type something, but you can't",
+          "You just stare at the screen, waiting for something to happen",
+          "But nothing does",
+          "Of course she isn't going to text you",
+          "You don't deserve it"
+        ];
+        break;
+      default:
+        wakeResponseText = ["..."];
+    }
+    // Return the wake scene with the response text
+    return {
+      id: "wake",
+      text: [
+        ...wakeResponseText,
+      ]
+    };
+  }
+
+  function workInProgress() {
+    return {
+      text:[
+        "This game is still a work in progress, so please continue looking for updates on my <a href='https://xjgfalconx.itch.io' target='_blank' class='text'>itch.io page</a>.",
+        "It means the world to me that you actually finished this game, so please also consider leaving a review!"
+      ],
+      options: [{}]
+    };
+  }
+
+  // --- Game Logic ---
+
+  function startGame() {
+    document.getElementById('title-screen').style.display = 'none';
+    document.getElementById('game-content').style.display = 'block';
+    document.getElementById('history-view').style.display = 'none';
+    document.body.style.overflow = 'auto';
+    historyStack = [{ sceneId: 0, chosenOptionText: null }];
+    currentHistoryIndex = 0;
+    playerMusicChoice = null;
+    playerMessageChoice = null;
+    updateNavButtons(false);
+    renderCurrentHistoryScene();
+  }
+
+  // Show name input after title screen
+  document.getElementById('title-screen').onclick = function() {
+    document.getElementById('title-screen').style.display = 'none';
+    document.getElementById('name-screen').style.display = 'flex';
+  };
+
+  // Handle name submit
+  document.getElementById('name-submit-btn').onclick = function() {
+    const input = document.getElementById('player-name-input');
+    let name = input.value.trim();
+    if (!name) name = "Joey";
+    playerName = name;
+    document.getElementById('name-screen').style.display = 'none';
+    startGame();
+  };
+
+  function renderCurrentHistoryScene() {
+    const entry = historyStack[currentHistoryIndex];
+    if (!entry) return;
+
+    switch (entry.sceneId) {
+      case "music_choice":
+        renderTextAndOptions(getMusicResponseScene(playerMusicChoice));
+        break;
+      case "morningChoice":
+        renderTextAndOptions(getMorningTextResponseScene(playerMessageChoice));
+        break;
+      case "abbyChoice1":
+        renderTextAndOptions(getAbbyResponseOne(playerMessageChoice));
+        break;
+      case "callChoice":
+        renderTextAndOptions(getCallChoice(playerMessageChoice));
+        break;
+      case "abbyChoice2":
+        renderTextAndOptions(getAbbyResponseTwo(playerMessageChoice));
+        break;
+      case "abbyReply1":
+        renderTextAndOptions(getWakeScene(playerMessageChoice));
+        break;
+      case "wip":
+        renderTextAndOptions(workInProgress());
+        break;
+      default:
+        const scene = sceneMap[entry.sceneId];
+        if (scene) renderTextAndOptions(scene);
+        break;
+    }
+  }
+
+  function renderTextAndOptions(scene) {
+    document.getElementById('history-view').style.display = 'none';
+    document.getElementById('game-content').style.display = 'block';
+
+    const textArea = document.getElementById('text-area');
+    const choicesDiv = document.getElementById('choices');
+
+    textArea.innerHTML = '';
+    choicesDiv.innerHTML = '';
+
+    scene.text.forEach(line => {
+      const p = document.createElement('p');
+      // If line is a function, call it to get the text
+      p.innerHTML = typeof line === "function" ? line() : line;
+      textArea.appendChild(p);
+    });
+
+    if (scene.options && scene.options.length > 0) {
+      scene.options.forEach(option => {
+        const button = document.createElement('button');
+        button.textContent = option.text;
+        button.className = 'choice-button';
+        button.onclick = () => {
+          if (currentHistoryIndex < historyStack.length - 1) {
+            historyStack = historyStack.slice(0, currentHistoryIndex + 1);
+          }
+          historyStack[currentHistoryIndex].chosenOptionText = option.text;
+          historyStack.push({ sceneId: option.next, chosenOptionText: null });
+          currentHistoryIndex++;
+
+          // Track player choices for dynamic scenes
+          if (
+            ["music_choice", "morningChoice", "abbyChoice1", "callChoice", "abbyChoice2", "abbyReply1"].includes(option.next)
+          ) {
+            playerMessageChoice = option.text;
+          }
+
+          updateNavButtons(false);
+          renderCurrentHistoryScene();
+        };
+        choicesDiv.appendChild(button);
+      });
+    } else {
+      // Fallback: Add a button that loads the workInProgress scene
+      const fallbackButton = document.createElement('button');
+      fallbackButton.textContent = "Work in Progress";
+      fallbackButton.className = 'choice-button';
+      fallbackButton.onclick = () => {
+        const nextScene = workInProgress();
+        historyStack.push({ sceneId: "work_in_progress", chosenOptionText: null });
+        currentHistoryIndex++;
+        renderTextAndOptions(nextScene);
+        updateNavButtons(false);
+      };
+      choicesDiv.appendChild(fallbackButton);
+    }
+  }
+
+  // --- NAV BAR BUTTONS & HISTORY VIEW LOGIC ---
+
+  const historyBtn = document.getElementById('history-btn');
+  const backBtn = document.getElementById('back-btn');
+  const historyView = document.getElementById('history-view');
+  const historyContent = document.getElementById('history-content');
+  const historyExitBtn = document.getElementById('history-exit-button');
+
+  let isHistoryViewActive = false;
+
+  // Show full history view (all scenes + choices)
+  function showHistory() {
+  isHistoryViewActive = true;
+  updateNavButtons(true);
+
+  document.getElementById('game-content').style.display = 'none';
+  historyView.style.display = 'block';
+
+  // Build full history log text
+  let html = '';
+  historyStack.forEach((entry, index) => {
+    let scene;
+    switch (entry.sceneId) {
+      case "music_choice":
+        scene = getMusicResponseScene(playerMusicChoice);
+        break;
+      case "morningChoice":
+        scene = getMorningTextResponseScene(playerMessageChoice);
+        break;
+      case "abbyChoice1":
+        scene = getAbbyResponseOne(playerMessageChoice);
+        break;
+      case "callChoice":
+        scene = getCallChoice(playerMessageChoice);
+        break;
+      case "abbyChoice2":
+        scene = getAbbyResponseTwo(playerMessageChoice);
+        break;
+      case "wake":
+        scene = getWakeScene(playerMessageChoice);
+        break;
+      case "wip":
+        scene = workInProgress();
+        break;
+      default:
+        scene = sceneMap[entry.sceneId];
+    }
+    if (!scene) return;
+
+    scene.text.forEach(line => {
+      html += `<p>${typeof line === "function" ? line() : line}</p>`;
+    });
+
+    if (entry.chosenOptionText && index < historyStack.length - 1) {
+      html += `<p style="color:#ffffff; font-weight:bold; margin-left: 20px;">> You chose: ${entry.chosenOptionText}</p>`;
+    }
+
+    if (index !== historyStack.length - 1) {
+      html += `<hr style="border-color: #555; margin: 20px 0;">`;
+    }
+  });
+
+  historyContent.innerHTML = html;
+}
+
+  // Exit history view, return to current scene
+  function exitHistory() {
+    isHistoryViewActive = false;
+    updateNavButtons(false);
+
+    historyView.style.display = 'none';
+    document.getElementById('game-content').style.display = 'block';
+    renderCurrentHistoryScene();
+  }
+
+  // Update nav buttons depending on context
+  function updateNavButtons(inHistoryView) {
+    if (inHistoryView) {
+      historyBtn.textContent = "Exit History";
+      backBtn.disabled = true;
+    } else {
+      historyBtn.textContent = "History";
+      backBtn.disabled = currentHistoryIndex === 0;
+    }
+  }
+
+  // History button click: toggle between showing history view or exiting it
+  historyBtn.addEventListener('click', () => {
+    if (isHistoryViewActive) {
+      exitHistory();
+    } else {
+      showHistory();
+    }
+  });
+
+  // Exit history button inside history view
+  historyExitBtn.addEventListener('click', exitHistory);
+
+  // Back button: go back one step in history (undo last choice)
+  backBtn.addEventListener('click', () => {
+    if (isHistoryViewActive) return;
+    if (currentHistoryIndex > 0) {
+      currentHistoryIndex--;
+      updateNavButtons(false);
+      renderCurrentHistoryScene();
+    }
+  });
+
+  // Nav bar show/hide on mouse near bottom
+  const navBar = document.getElementById('nav-bar');
+  let navVisible = false;
+  function checkMousePosition(e) {
+    const viewportHeight = window.innerHeight;
+    if (e.clientY > viewportHeight - 80) {
+      if (!navVisible) {
+        navBar.classList.add('visible');
+        navVisible = true;
+      }
+    } else {
+      if (navVisible) {
+        navBar.classList.remove('visible');
+        navVisible = false;
+      }
+    }
+  }
+  window.addEventListener('mousemove', checkMousePosition);
+
+</script>
+</body>
+</html>
