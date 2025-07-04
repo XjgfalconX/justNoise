@@ -26,7 +26,7 @@
   #title-screen {
     position: fixed; top: 0; left: 0;
     width: 100vw; height: 100vh;
-    background-color: black;
+    background-color: transparent;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -150,6 +150,17 @@
   .nav-button:hover {
     transform: scale(1.1);
   }
+  .nav-arrow {
+    position: fixed;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 1; /* Fully opaque */
+    font-size: 2rem;
+    color: black; /* Ensure visible color */
+    pointer-events: none;
+    z-index: 1000; /* High enough to be on top */
+  }
   #history-view {
     display: none;
     padding: 20px 40px 120px;
@@ -222,6 +233,8 @@
   <button class="nav-button" id="history-btn">History</button>
   <button class="nav-button" id="back-btn">Back</button>
   <button class="nav-button" onclick="location.reload()">Restart</button>
+  <button class="nav-button" onclick="saveGame()">Save</button>
+  <button class="nav-button" onclick="loadGame()">Load</button>
 </div>
 
 <div id="name-screen">
@@ -231,6 +244,7 @@
 </div>
 
 <script>
+  let repliedtoAbby = null;
   let abbyLove = 0;
   let lenaLove = 0;
   let playerMessageChoice = null;
@@ -437,10 +451,136 @@
               
     },
     {
-      id: "ChapterSix",
+      id: "repliedAbby1",
       text: [
-
+        "Abby: 'Ugh i know its early but i have things i need to get off my chest'",
+        "Abby: 'So its like my boyfriend just doesnt care about me'",
+        "Abby: 'He just ignores me and acts like im not even there'",
+        "Abby: 'but when i go and try to talk to someone else he gets all mad and jealous'",
+        "Abby: 'I dont know what to do, i feel so alone'",
+        "Abby: 'I just want someone to talk to'",
+        "Abby: 'I know its early but can we talk? like call?'",
+        () => `${playerName}: 'Yeah sure, we can always talk'`,
+        "Abby: 'Thank you so much, it means a lot to me'",
+        "After talking to Abby for a while, you try to console her",
+        "You tell her that she should break up with her boyfriend if he makes her feel this way",
+        "She talks about how she feels like she cant do that",
+        "She says she doesnt want to hurt him",
+        "She insists its not about you at all",
+        "After all this, as bad as it makes you feel, your a little happy that she doesnt really like him",
+        "You dont want to take advantage of her, so you decide to just let everything play out",
+      ],
+      options: [
+        { text: "Continue", next: "chapterSix" }
       ]
+    },
+    {
+      id: "ignoredAbby1",
+      text: [
+        "You get another text from Abby",
+        "Abby: 'Ugh i know its early but i have things i need to get off my chest'",
+        "Abby: 'So its like my boyfriend just doesnt care about me'",
+        "Abby: 'He just ignores me and acts like im not even there'",
+        "Abby: 'but when i go and try to talk to someone else he gets all mad and jealous'",
+        "Abby: 'I dont know what to do, i feel so alone'",
+        "Abby: 'I just want someone to talk to'",
+        "Abby: 'I know its early but can we talk? like call?'",
+        "You feel terrible for ignoring her",
+        "She clearly needs you right now, so you respond",
+        () => `${playerName}: 'I cant call right now but, but we can always talk'`,
+        "Abby: 'Thank you so much, it means a lot to me'",
+        "She talks about how she feels like she cant break up with her boyfriend",
+        "She hates hurting people, and she doesnt want to hurt him",
+        "And she says that she doesnt really love him anymore",
+        "Abby: 'I just dont know what to do'",
+        () => `${playerName}: 'Im sorry'`,
+        "Abby: 'No no its not your fault at all'",
+        () => ` Abby: 'I just feel so lost, and i need someone, i need you ${playerName}:'`,
+        "Her words make your heart skip a beat",
+        "Even though you know you shouldnt, you feel a little happy",
+        "Maybe its okay to feel like this, even though she has a boyfriend",
+        "I mean she doesnt really like him, right?",
+        "You dont know",
+
+      ],
+      options: [
+        { text: "Continue", next: "chapterSix" }
+      ]
+    },
+    {
+      id: "chapterSix",
+      text: [
+        "Getting out of bed, you feel a little better than normal",
+        "You decide to take a shower, the water feels nice against your skin",
+        "You check your phone, your mom messaged you to get some grocieries",
+        "You were just thinking about how you needed to get out of the house anyways so its fine",
+        "You get dressed and head out the door",
+        "It was mostly uneventful, just the same old stuff",
+        "On your way back you see lena walking down the street",
+        "She has her face buried in her phone, shes in her same old hoodie that you used to wear when you two were together",
+      ],
+      options: [
+        { text: "Say hi", next: "lenaHi" },
+        { text: "Ignore her", next: "lenaIgnore" }
+      ]
+    },
+    {
+      id: "textLena",
+      text: [
+        "You decide to text her like you said you would earlier",
+        "You open the chat… and just stare.",
+        "You sit there, thumb hovering over the keyboard, your heartbeat in your ears.",
+        () => `${playerName}: 'Hey, recently ive been thinking about us, and i just really miss you'`,
+        "You exhale, like you’ve been holding your breath all day.",
+        "It’s terrifying, how quiet everything feels now.",
+        "Your suprised you actually managed to say that",
+        "Your nervous, your glad abby helped you get over your fear of texting her",
+        "Even if it was in a roundabout way",
+        "Almost immedietely you get a reply",
+        "Lena: 'Really? i thought you hated me'",
+        "Your eyes widen, you never thought she would say that",
+        "You can feel tears starting to well up in your eyes",
+        "Lena: 'Im really sorry, i was just so mad at you'",
+        "Lena: 'I just felt so betrayed'",
+        "Lena: 'But it really wasnt your fault'",
+        "Lena: 'I probably would have done the same thing'",
+        "At this point your sobbing, your not even looking at your phone anymore",
+        "You just sit there, holding your face in your hands",
+
+      ],
+    },
+    {
+      id: "textAbby",
+      text: [
+        "Your desperate for some distraction, so you open Abby's chat.",
+        () => `${playerName}: 'Hey abby i need to talk to you'`,
+        "Abby: 'Sure whats up?'",
+        () => `${playerName}: 'Well i just met someone who i used to date, and i just really miss her'`,
+        () => `${playerName}: 'But i know she hates me and i dont know what to do'`,
+        () => `${playerName}: 'I just feel so lost'`,
+        "Abby: 'Oh no im so sorry'",
+        "Abby: 'Its okay, i know how you feel'",
+        "Abby: 'Ill always support you no matter what'",
+        "Abby: 'So its okay to lean on me'",
+        "Abby: 'Do you wanna call?'",
+        () => `${playerName}: 'Yes'`,
+        "You and abby talk, and god it fels so refreshing",
+        "You tell her everything, how you feel, how you miss lena, how you feel so stuck",
+        "She listens, she really listens",
+        "She doesnt say much, she just listens and lets you talk",
+        "When you finally stop venting, it just turns into a normal conversation",
+        "You talk about your favorite games, your favorite music, and just random stuff",
+        "Your happy, you never want this to end, but eventually you both go to bed",
+    ],
+    },
+    
+    {
+      id: "wip",
+      text:[
+        "This game is still a work in progress, so please continue looking for updates on my <a href='https://xjgfalconx.itch.io' target='_blank' class='text'>itch.io page</a>.",
+        "It means the world to me that you actually finished this game, so please also consider leaving a review!"
+      ],
+      options: [{}]
     }
   ];
 
@@ -743,6 +883,8 @@
           () => `${playerName}: 'Oh, well you should do what makes you happy'`,
           "Abby: 'I know, but i dont want to hurt him'",
           "You would be lying if you said that didint hurt",
+          "She really has a boyfriend?",
+          "You feel betrayed, but she never actually lied to you",
           "You need someone to talk to right now, but you dont know how to feel anymore about abby",
           "But out of nowhere you get a message from lena",
           () => `Lena: 'Hey ${playerName}',`,
@@ -762,12 +904,16 @@
         { text: "Continue", next: "chapterFive" }
       ]
     };
+    {
+      
+    }
   }
 
   function getWakeScene(choice) {
     let wakeResponseText;
     switch(choice) {
       case "Reply":
+        repliedtoAbby = true;
         abbyLove++;
         wakeResponseText = [
           "You decide to reply to Abby",
@@ -777,10 +923,12 @@
         ];
         break;
       case "Ignore":
+        repliedtoAbby = false;
         abbyLove--;
         lenaLove++;
         wakeResponseText = [
           "You decide not to reply to Abby",
+          "you know its the right decision",
           "You still want to feel something, anything",
           "You open Lena's chat",
           "You try to type something, but you can't",
@@ -794,14 +942,87 @@
         wakeResponseText = ["..."];
     }
     // Return the wake scene with the response text
-    return {
+    if( abbyLove == 4) {
+      wakeResponseText.push(
+      "You feel a little better, you think about lena, but you hold the thought",
+    );
+    }
+    if(repliedtoAbby) {
+        return {
       id: "wake",
       text: [
         ...wakeResponseText,
-      ]
+      ],
+      options: [{ text: "Continue", next: "repliedAbby1" }]
     };
+      }
+    else {
+        return {
+      id: "wake",
+      text: [
+        ...wakeResponseText,
+      ],
+      options: [{ text: "Continue", next: "ignoredAbby1" }]
+    };
+      }
+    
   }
 
+  function getLenaHi(choice) {
+    playerMessageChoice = choice; // <-- This is needed for correct branching!
+    let playerMessageText;
+    switch(choice) {
+      case "Say hi":
+        lenaLove++;
+        playerMessageText = [
+          "You start to wave at her, soon changing your mind",
+          "She hates you, you know that",
+          "You dont want to make things worse",
+          "So you just walk home a little faster"
+        ];  
+        break;
+      case "Ignore her":
+        lenaLove--;
+        playerMessageText = [
+          "You decide to ignore her, you dont want to make things worse",
+          "You just walk home a little faster",
+          "Besides you have abby now, you dont need her",
+        ];
+        break;
+      default:
+        playerMessageText = ["You freeze, unsure what to do."];
+    }
+    return {
+      id: "lenaHi",
+      text: [
+        ...playerMessageText,
+        "Once you reach about half way home you get a tap on your shoulder",
+        "You turn around and see Lena standing there, looking at you with a sort of... worried expression",
+        () => `Lena: 'Hey ${playerName}'`,
+        () => `${playerName}: 'O-oh'`,
+        "Lena: 'I saw you walking and… I don’t know. I guess I just wanted to say hi.'",
+        "She kicks her foot like she’s nervous, her eyes darting around.",
+        "You can’t tell if she’s being genuine or not.",
+        "You feel a little guilty for ignoring her, but you also feel a little happy that she noticed you",
+        "You want to tell her that you miss her",
+        "You want to say something meaningful",
+        "But you can’t",
+        () => `${playerName}: 'uhm... i cant really talk right now'`,
+        () => `${playerName}: 'Ill text you later'`,
+        "You rush off, scared",
+        "As soon as you get home you slam the door",
+        "You sit in silence, back against the door, your breath shaky.",
+        "You replay it all. Her voice. Her eyes. That tiny pause before she turned away.",
+        "You ran again.",
+        "Your so pitiful",
+      ],
+      options: [
+        { text: "Text Lena", next: "textLena" },
+        { text: "Text Abby", next: "textAbby" }
+      ]
+        
+    };
+  }
   function workInProgress() {
     return {
       text:[
@@ -866,13 +1087,16 @@
       case "abbyReply1":
         renderTextAndOptions(getWakeScene(playerMessageChoice));
         break;
+      case "lenaHi" || "lenaIgnore":
+        renderTextAndOptions(getLenaHi(playerMessageChoice));
+        break;
       case "wip":
         renderTextAndOptions(workInProgress());
         break;
       default:
         const scene = sceneMap[entry.sceneId];
         if (scene) renderTextAndOptions(scene);
-        break;
+        break;  
     }
   }
 
@@ -1060,6 +1284,41 @@
     }
   }
   window.addEventListener('mousemove', checkMousePosition);
+
+  function saveGame() {
+    const saveData = {
+      historyStack,
+      currentHistoryIndex,
+      abbyLove,
+      lenaLove,
+      playerName,
+      playerMessageChoice,
+      playerMusicChoice
+    };
+    localStorage.setItem('justNoiseSave', JSON.stringify(saveData));
+    alert('Game saved!');
+  }
+
+  function loadGame() {
+    const save = localStorage.getItem('justNoiseSave');
+    if (save) {
+      const data = JSON.parse(save);
+      historyStack = data.historyStack;
+      currentHistoryIndex = data.currentHistoryIndex;
+      abbyLove = data.abbyLove;
+      lenaLove = data.lenaLove;
+      playerName = data.playerName;
+      playerMessageChoice = data.playerMessageChoice;
+      playerMusicChoice = data.playerMusicChoice;
+      renderCurrentHistoryScene();
+      alert('Game loaded!');
+    } else {
+      alert('No save found.');
+    }
+  }
+
+  // Auto-save every time the game is closed or refreshed
+  window.addEventListener('beforeunload', saveGame);
 
 </script>
 </body>
